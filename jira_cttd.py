@@ -504,7 +504,7 @@ def generate_html(data: list[dict]) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Jira Report — {report_date}</title>
+<title>Jira Flow Report — {report_date}</title>
 <style>
   *, *::before, *::after {{ box-sizing: border-box; }}
   body {{
@@ -578,7 +578,7 @@ def generate_html(data: list[dict]) -> str:
 </head>
 <body>
 <div style="padding: 20px;">
-  <h1>Jira Report — In Progress &amp; Hygiene</h1>
+  <h1>Jira Flow Report</h1>
   <p class="meta">Generated: {report_date} &nbsp;&bull;&nbsp; {total_projects} project{"s" if total_projects != 1 else ""} &nbsp;&bull;&nbsp; {total_issues} in-progress item{"s" if total_issues != 1 else ""}</p>
   <div class="legend">
     <strong style="font-size:0.78rem">Colour key:</strong>
@@ -593,6 +593,9 @@ def generate_html(data: list[dict]) -> str:
     </div>
   </div>
 </div>
+<footer style="margin-top:2rem;padding:1rem 1.5rem;border-top:1px solid #e5e7eb;text-align:center;color:#6b7280;font-size:0.8rem;">
+  <p>This Jira WIP &amp; hygiene report was built by <a href="https://www.solutioneers.co.uk" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;font-weight:500;">Solutioneers</a> &mdash; a consultancy that helps teams ship better software through lean delivery practices, flow metrics, and hands-on coaching. If your team wants clearer visibility into cycle time and delivery health, <a href="https://www.solutioneers.co.uk" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">get in touch</a>.</p>
+</footer>
 </body>
 </html>"""
 
