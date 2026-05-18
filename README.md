@@ -49,5 +49,6 @@ open index.html                   # open in browser (macOS)
 |---|---|
 | **Total WIP** | Count of in-progress issues for the project; click to open in Jira |
 | **91+, 61–90, 31–60, 15–30, 8–14, 0–7** | Age bins (days in current In Progress state); each coloured square represents one issue — green ≤14d, amber ≤30d, red >30d; hover for details, click to open the issue |
+| **Blockers** | Issues that are labelled Blocked/Blocker/Onhold/On-Hold/On Hold, are Flagged, or are in a status named Blocked/Blockers/Onhold/On-Hold/On Hold; click a non-zero count to view them in Jira |
 | **Orphaned Stories** | Stories/Tasks with no parent epic; click a non-zero count to view them in Jira |
 | **Orphaned Epics** | Epics with no parent; click a non-zero count to view them in Jira |
