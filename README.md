@@ -4,7 +4,7 @@ A single-page HTML report for Jira Cloud that shows **Aged WIP** (how long each 
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.9+
 - [`requests`](https://pypi.org/project/requests/) library
 
 ## Installation

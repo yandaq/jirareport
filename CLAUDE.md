@@ -20,7 +20,7 @@ python3 jira_cttd.py --output report.html  # custom output path
 open index.html
 ```
 
-Requires Python 3.10+ and `requests`: `pip install requests`
+Requires Python 3.9+ and `requests`: `pip install requests`
 
 Credentials are read from `.env` (`JIRA_URL`, `JIRA_EMAIL`, `JIRA_PAT`). If missing, an interactive wizard runs on first launch to create it. The PAT prompt uses `getpass` (no terminal echo).
 
