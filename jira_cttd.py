@@ -105,6 +105,9 @@ BINS = [
     ("0–7 days",   0,  7),
 ]
 
+BLOCKER_LABELS   = {"blocked", "blocker", "onhold", "on-hold", "on hold"}
+BLOCKER_STATUSES = {"blocked", "blockers", "onhold", "on-hold", "on hold"}
+
 SHOW_EMPTY_PROJECTS = False
 MAX_RETRIES = 3
 RATE_LIMIT_SLEEP = 60
@@ -262,6 +265,29 @@ def get_orphan_epic_count(project_key: str) -> tuple[int, str]:
     return count, search_jql
 
 
+def get_blocker_count(project_key: str) -> tuple[int, str]:
+    base_jql = (
+        f'project = "{project_key}" AND issuetype in (Story, Task, Bug)'
+        f' AND (labels in (Blocked, Blocker, Onhold, "On-Hold", "On Hold")'
+        f' OR status in ("Blocked", "Blockers", "Onhold", "On-Hold", "On Hold")'
+        f' OR flagged is not EMPTY)'
+    )
+    fallback_jql = (
+        f'project = "{project_key}" AND issuetype in (Story, Task, Bug)'
+        f' AND (labels in (Blocked, Blocker, Onhold, "On-Hold", "On Hold")'
+        f' OR status in ("Blocked", "Blockers", "Onhold", "On-Hold", "On Hold"))'
+    )
+    for jql in (base_jql, fallback_jql):
+        try:
+            count = sum(1 for _ in _paginate_jql(jql, "key"))
+            return count, jql
+        except requests.HTTPError as exc:
+            if exc.response.status_code == 400:
+                continue
+            raise
+    return 0, fallback_jql
+
+
 def get_all_changelog_histories(issue_key: str) -> list[dict]:
     data = api_get(f"/rest/api/3/issue/{issue_key}", params={"expand": "changelog"})
     changelog = data.get("changelog", {})
@@ -334,6 +360,7 @@ def collect_data() -> list[dict]:
 
         orphan_count, orphan_jql = get_orphan_count(key)
         orphan_epic_count, orphan_epic_jql = get_orphan_epic_count(key)
+        blocker_count, blocker_jql = get_blocker_count(key)
 
         issues_out = []
         for issue in raw_issues:
@@ -374,6 +401,8 @@ def collect_data() -> list[dict]:
             "orphan_jql": orphan_jql,
             "orphan_epic_count": orphan_epic_count,
             "orphan_epic_jql": orphan_epic_jql,
+            "blocker_count": blocker_count,
+            "blocker_jql": blocker_jql,
         })
 
     return result
@@ -426,7 +455,7 @@ def bucket_issues(issues: list[dict]) -> list[list[dict]]:
 def generate_html(data: list[dict]) -> str:
     report_date = datetime.date.today().isoformat()
     num_bins = len(BINS)
-    grid_cols = f"220px 80px repeat({num_bins}, 1fr) 1fr 1fr"
+    grid_cols = f"220px 80px repeat({num_bins}, 1fr) 1fr 1fr 1fr"
 
     def _orphan_cell_html(count: int, jql: str, parity: str) -> str:
         if count > 0 and jql:
@@ -445,6 +474,7 @@ def generate_html(data: list[dict]) -> str:
     header_cells = ['<div class="hdr hdr-label">Project</div>', '<div class="hdr">Total WIP</div>']
     for label, _, _ in BINS:
         header_cells.append(f'<div class="hdr">{html.escape(label)}</div>')
+    header_cells.append('<div class="hdr">Blockers</div>')
     header_cells.append('<div class="hdr">Orphaned Stories</div>')
     header_cells.append('<div class="hdr">Orphaned Epics</div>')
     header_html = "\n    ".join(header_cells)
@@ -489,6 +519,7 @@ def generate_html(data: list[dict]) -> str:
                 f'<div class="cell row-{parity}">{cell_content}</div>'
             )
 
+        row_cells.append(_orphan_cell_html(project.get("blocker_count", 0), project.get("blocker_jql", ""), parity))
         row_cells.append(_orphan_cell_html(project.get("orphan_count", 0), project.get("orphan_jql", ""), parity))
         row_cells.append(_orphan_cell_html(project.get("orphan_epic_count", 0), project.get("orphan_epic_jql", ""), parity))
 
