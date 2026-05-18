@@ -1,4 +1,5 @@
 import datetime
+import getpass
 import html
 import os
 import re
@@ -60,7 +61,8 @@ def _credentials_wizard(env_path: Path) -> None:
         if note:
             print(note)
         try:
-            value = input(f"{label}{hint}: ").strip()
+            prompt = f"{label}{hint}: "
+            value = (getpass.getpass(prompt) if key == "JIRA_PAT" else input(prompt)).strip()
         except (EOFError, KeyboardInterrupt):
             print("\nAborted.")
             sys.exit(1)
